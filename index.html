@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Touch Attribution Dashboard</title>
+    <title>Retail Customer Journey Analytics Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -13,281 +14,248 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
             line-height: 1.6;
         }
 
         .container {
-            max-width: 100%;
-            padding: 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 24px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 2.25rem;
             font-weight: 700;
+            color: #111827;
             margin-bottom: 8px;
         }
 
         .header p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .control-item {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .control-item:hover {
-            border-color: #3b82f6;
-            background-color: #f1f5f9;
-        }
-
-        .control-item.active {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
+            color: #6b7280;
+            font-size: 1rem;
         }
 
         .metrics-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .metric-card {
+        .stat-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 4px solid;
-            transition: transform 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
         }
 
-        .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-
-        .metric-card.blue { border-left-color: #3b82f6; }
-        .metric-card.green { border-left-color: #10b981; }
-        .metric-card.yellow { border-left-color: #f59e0b; }
-        .metric-card.purple { border-left-color: #8b5cf6; }
-
-        .metric-header {
+        .stat-card-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+            justify-content: between;
+            align-items: flex-start;
         }
 
-        .metric-title {
-            font-size: 14px;
-            color: #64748b;
+        .stat-card-content {
+            flex: 1;
+        }
+
+        .stat-card-title {
+            font-size: 0.875rem;
             font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 5px;
         }
 
-        .metric-icon {
-            width: 24px;
-            height: 24px;
-            opacity: 0.7;
-        }
-
-        .metric-value {
-            font-size: 32px;
+        .stat-card-value {
+            font-size: 1.875rem;
             font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
+            color: #111827;
+            margin-bottom: 5px;
         }
 
-        .metric-change {
+        .stat-card-change {
+            font-size: 0.875rem;
+            color: #059669;
+        }
+
+        .stat-card-icon {
+            width: 48px;
+            height: 48px;
+            background: #dbeafe;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            font-size: 14px;
-            font-weight: 600;
+            justify-content: center;
+            margin-left: 15px;
         }
 
-        .metric-change.positive { color: #059669; }
-        .metric-change.negative { color: #dc2626; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
 
         .chart-container {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
         }
 
         .chart-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1e293b;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
             margin-bottom: 20px;
         }
 
-        .chart-wrapper {
+        .chart-canvas {
             position: relative;
             height: 300px;
+        }
+
+        .audience-list {
+            space-y: 16px;
+        }
+
+        .audience-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
             margin-bottom: 16px;
         }
 
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow-x: auto;
+        .audience-name {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 8px;
         }
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
+        .channel-metrics {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 8px;
         }
 
-        .data-table th,
-        .data-table td {
-            padding: 12px 8px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .data-table th {
-            background-color: #f8fafc;
-            font-weight: 600;
-            color: #475569;
-            font-size: 14px;
-        }
-
-        .data-table td {
-            font-size: 14px;
-        }
-
-        .channel-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .holdout-section {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .holdout-item {
+        .conversion-bar-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .holdout-left h4 {
-            font-weight: 600;
-            color: #1e293b;
             margin-bottom: 4px;
         }
 
-        .holdout-left p {
-            font-size: 14px;
-            color: #64748b;
+        .conversion-bar-label {
+            font-size: 0.75rem;
+            color: #6b7280;
         }
 
-        .holdout-right {
+        .conversion-bar-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .conversion-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .conversion-bar-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .wide-chart {
+            grid-column: span 2;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+        }
+
+        .performance-list {
+            space-y: 12px;
+        }
+
+        .performance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .performance-item-left h4 {
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .performance-item-left p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .performance-item-right {
             text-align: right;
         }
 
-        .holdout-value {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1e293b;
+        .performance-item-right .roas {
+            font-weight: 600;
+            color: #059669;
+            margin-bottom: 2px;
         }
 
-        .holdout-subtext {
-            font-size: 14px;
-            color: #64748b;
+        .performance-item-right .spend {
+            font-size: 0.875rem;
+            color: #6b7280;
         }
 
-        .lift-highlight {
-            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-            border: 1px solid #3b82f6;
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 16px;
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .wide-chart {
+                grid-column: span 1;
+            }
         }
 
-        .lift-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1d4ed8;
-        }
-
-        .compliance-notice {
-            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-            border-left: 4px solid #3b82f6;
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 24px;
-        }
-
-        .compliance-notice p {
-            font-size: 14px;
-            color: #1e40af;
-            line-height: 1.6;
-        }
-
-        @media (min-width: 768px) {
+        @media (max-width: 768px) {
             .container {
-                padding: 24px;
+                padding: 15px;
             }
             
             .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .container {
-                max-width: 1200px;
-                margin: 0 auto;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
             }
             
-            .metrics-grid {
-                grid-template-columns: repeat(4, 1fr);
+            .dashboard-grid {
+                gap: 20px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -296,339 +264,472 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>Multi-Touch Attribution Analytics</h1>
-            <p>Clean Room Data | Customer Journey Intelligence</p>
-        </div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <div class="control-item active" onclick="selectPeriod(this, '30d')">Last 30 Days</div>
-            <div class="control-item" onclick="selectPeriod(this, '90d')">Last 90 Days</div>
-            <div class="control-item" onclick="selectPeriod(this, '1y')">Last Year</div>
-            <div class="control-item" onclick="exportReport()">📥 Export Report</div>
+            <h1>Retail Customer Journey Analytics</h1>
+            <p>Comprehensive view of customer behavior and channel performance</p>
         </div>
 
         <!-- Key Metrics -->
         <div class="metrics-grid">
-            <div class="metric-card blue">
-                <div class="metric-header">
-                    <div class="metric-title">Total Audience Reached</div>
-                    <div class="metric-icon">👥</div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <div class="stat-card-title">Total Conversions</div>
+                        <div class="stat-card-value">1,400</div>
+                        <div class="stat-card-change">+12.5% vs last period</div>
+                    </div>
+                    <div class="stat-card-icon">🛒</div>
                 </div>
-                <div class="metric-value">12.4M</div>
-                <div class="metric-change positive">↗ +8.2%</div>
             </div>
-
-            <div class="metric-card green">
-                <div class="metric-header">
-                    <div class="metric-title">Blended ROAS</div>
-                    <div class="metric-icon">💰</div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <div class="stat-card-title">Conversion Rate</div>
+                        <div class="stat-card-value">4.2%</div>
+                        <div class="stat-card-change">+0.8% vs last period</div>
+                    </div>
+                    <div class="stat-card-icon">🎯</div>
                 </div>
-                <div class="metric-value">4.6x</div>
-                <div class="metric-change positive">↗ +12.4%</div>
             </div>
-
-            <div class="metric-card yellow">
-                <div class="metric-header">
-                    <div class="metric-title">Avg Sales Rate</div>
-                    <div class="metric-icon">🎯</div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <div class="stat-card-title">Avg ROAS</div>
+                        <div class="stat-card-value">8.2x</div>
+                        <div class="stat-card-change">+15.3% vs last period</div>
+                    </div>
+                    <div class="stat-card-icon">📈</div>
                 </div>
-                <div class="metric-value">3.5%</div>
-                <div class="metric-change negative">↘ -2.1%</div>
             </div>
-
-            <div class="metric-card purple">
-                <div class="metric-header">
-                    <div class="metric-title">Attribution Lift</div>
-                    <div class="metric-icon">📈</div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <div class="stat-card-title">Customer LTV</div>
+                        <div class="stat-card-value">$485</div>
+                        <div class="stat-card-change">+8.7% vs last period</div>
+                    </div>
+                    <div class="stat-card-icon">🏆</div>
                 </div>
-                <div class="metric-value">+19.2%</div>
-                <div class="metric-change positive">↗ +5.8%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-content">
+                        <div class="stat-card-title">Active Customers</div>
+                        <div class="stat-card-value">12,450</div>
+                        <div class="stat-card-change">+5.2% vs last period</div>
+                    </div>
+                    <div class="stat-card-icon">👥</div>
+                </div>
             </div>
         </div>
 
-        <!-- Channel Performance Chart -->
-        <div class="chart-container">
-            <h3 class="chart-title">Channel Performance - ROAS Analysis</h3>
-            <div class="chart-wrapper">
-                <canvas id="roasChart"></canvas>
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Customer Journey Funnel -->
+            <div class="chart-container">
+                <h3 class="chart-title">Customer Journey Funnel</h3>
+                <div class="chart-canvas">
+                    <canvas id="journeyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Channel Performance -->
+            <div class="chart-container">
+                <h3 class="chart-title">Channel Performance</h3>
+                <div class="chart-canvas">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Campaign Attribution Analysis -->
+            <div class="chart-container">
+                <h3 class="chart-title">Campaign Attribution Analysis</h3>
+                <div class="chart-canvas">
+                    <canvas id="campaignChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Audience Segmentation -->
+            <div class="chart-container">
+                <h3 class="chart-title">Audience Conversion by Channel</h3>
+                <div class="audience-list">
+                    <div class="audience-item">
+                        <div class="audience-name">Loyal Shoppers</div>
+                        <div class="channel-metrics">
+                            <span>Organic: 180</span>
+                            <span>Paid: 150</span>
+                            <span>Social: 120</span>
+                            <span>Email: 90</span>
+                            <span>Display: 30</span>
+                        </div>
+                        <div class="conversion-bar-container">
+                            <span class="conversion-bar-label">Total Conversions</span>
+                            <span class="conversion-bar-value">570</span>
+                        </div>
+                        <div class="conversion-bar">
+                            <div class="conversion-bar-fill" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="audience-item">
+                        <div class="audience-name">First Time Buyers</div>
+                        <div class="channel-metrics">
+                            <span>Organic: 160</span>
+                            <span>Paid: 140</span>
+                            <span>Social: 110</span>
+                            <span>Email: 50</span>
+                            <span>Display: 25</span>
+                        </div>
+                        <div class="conversion-bar-container">
+                            <span class="conversion-bar-label">Total Conversions</span>
+                            <span class="conversion-bar-value">485</span>
+                        </div>
+                        <div class="conversion-bar">
+                            <div class="conversion-bar-fill" style="width: 81%"></div>
+                        </div>
+                    </div>
+                    <div class="audience-item">
+                        <div class="audience-name">High Value Customers</div>
+                        <div class="channel-metrics">
+                            <span>Organic: 110</span>
+                            <span>Paid: 90</span>
+                            <span>Social: 90</span>
+                            <span>Email: 40</span>
+                            <span>Display: 15</span>
+                        </div>
+                        <div class="conversion-bar-container">
+                            <span class="conversion-bar-label">Total Conversions</span>
+                            <span class="conversion-bar-value">345</span>
+                        </div>
+                        <div class="conversion-bar">
+                            <div class="conversion-bar-fill" style="width: 58%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROAS Over Time by Audience -->
+            <div class="chart-container wide-chart">
+                <h3 class="chart-title">ROAS Trends by Audience Segment</h3>
+                <div class="chart-canvas">
+                    <canvas id="roasChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Customer Cohort Analysis -->
+            <div class="chart-container wide-chart">
+                <h3 class="chart-title">Customer Cohort & Retention Analysis</h3>
+                <div class="chart-canvas">
+                    <canvas id="cohortChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- Customer Journey Chart -->
-        <div class="chart-container">
-            <h3 class="chart-title">Customer Journey - Touchpoints to Conversion</h3>
-            <div class="chart-wrapper">
-                <canvas id="journeyChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Channel Attribution Table -->
-        <div class="table-container">
-            <h3 class="chart-title">Channel Attribution Analysis</h3>
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Channel</th>
-                            <th>Audience</th>
-                            <th>ROAS</th>
-                            <th>Sales Rate</th>
-                            <th>Exposed</th>
-                            <th>Unexposed</th>
-                            <th>Lift vs Control</th>
-                            <th>Lift vs Unexposed</th>
-                        </tr>
-                    </thead>
-                    <tbody id="channelTableBody">
-                        <!-- Table rows will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Attribution Models Chart -->
-        <div class="chart-container">
-            <h3 class="chart-title">Attribution Model Comparison</h3>
-            <div class="chart-wrapper">
-                <canvas id="attributionChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Holdout Test Results -->
-        <div class="holdout-section">
-            <h3 class="chart-title">Holdout Test Results</h3>
-            
-            <div class="holdout-item">
-                <div class="holdout-left">
-                    <h4>Test Group</h4>
-                    <p>Audience: 1.1M</p>
-                </div>
-                <div class="holdout-right">
-                    <div class="holdout-value">3.85%</div>
-                    <div class="holdout-subtext">42.8K Sales</div>
+        <!-- Campaign & Channel Performance Summary -->
+        <div class="summary-grid">
+            <div class="chart-container">
+                <h3 class="chart-title">Top Performing Campaigns</h3>
+                <div class="performance-list">
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Summer Sale 2024</h4>
+                            <p>520 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">9.2x ROAS</div>
+                            <div class="spend">$18,000 spend</div>
+                        </div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Black Friday Blitz</h4>
+                            <p>480 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">7.8x ROAS</div>
+                            <div class="spend">$22,000 spend</div>
+                        </div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>New Collection Launch</h4>
+                            <p>350 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">6.9x ROAS</div>
+                            <div class="spend">$15,000 spend</div>
+                        </div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Holiday Specials</h4>
+                            <p>290 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">8.5x ROAS</div>
+                            <div class="spend">$12,000 spend</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="holdout-item">
-                <div class="holdout-left">
-                    <h4>Control Group</h4>
-                    <p>Audience: 1.0M</p>
-                </div>
-                <div class="holdout-right">
-                    <div class="holdout-value">3.12%</div>
-                    <div class="holdout-subtext">31.2K Sales</div>
+            <div class="chart-container">
+                <h3 class="chart-title">Channel Efficiency</h3>
+                <div class="performance-list">
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Organic Search</h4>
+                            <p>450 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">12.5x ROAS</div>
+                            <div class="spend">35% attribution</div>
+                        </div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Paid Search</h4>
+                            <p>380 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">8.2x ROAS</div>
+                            <div class="spend">28% attribution</div>
+                        </div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Social Media</h4>
+                            <p>320 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">6.8x ROAS</div>
+                            <div class="spend">22% attribution</div>
+                        </div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Email</h4>
+                            <p>180 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">15.3x ROAS</div>
+                            <div class="spend">12% attribution</div>
+                        </div>
+                    </div>
+                    <div class="performance-item">
+                        <div class="performance-item-left">
+                            <h4>Display</h4>
+                            <p>70 conversions</p>
+                        </div>
+                        <div class="performance-item-right">
+                            <div class="roas">2.1x ROAS</div>
+                            <div class="spend">3% attribution</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="holdout-item">
-                <div class="holdout-left">
-                    <h4>Holdout</h4>
-                    <p>Audience: 1.0M</p>
-                </div>
-                <div class="holdout-right">
-                    <div class="holdout-value">2.89%</div>
-                    <div class="holdout-subtext">28.9K Sales</div>
-                </div>
-            </div>
-
-            <div class="lift-highlight">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 600; color: #1e40af;">Incremental Lift:</span>
-                    <span class="lift-value">+23.4%</span>
-                </div>
-                <p style="font-size: 14px; color: #1e40af; margin-top: 8px;">
-                    Test vs Control statistical significance: p < 0.001
-                </p>
-            </div>
-        </div>
-
-        <!-- Compliance Notice -->
-        <div class="compliance-notice">
-            <p><strong>🔒 Clean Room Data Compliance:</strong> All customer data is processed in a privacy-safe environment. Individual customer identities are not accessible. Attribution analysis uses aggregated, anonymized datasets with differential privacy protections applied.</p>
         </div>
     </div>
 
     <script>
-        // Sample data
-        const channelData = [
-            { channel: 'Display', audience: 2840000, roas: 4.2, salesRate: 0.032, exposed: 2840000, unexposed: 1160000, lift: 18.5, liftVsUnexposed: 22.3, color: '#8B5CF6' },
-            { channel: 'Search', audience: 1920000, roas: 5.8, salesRate: 0.045, exposed: 1920000, unexposed: 2080000, lift: 24.1, liftVsUnexposed: 28.7, color: '#3B82F6' },
-            { channel: 'Social', audience: 3100000, roas: 3.6, salesRate: 0.028, exposed: 3100000, unexposed: 900000, lift: 15.2, liftVsUnexposed: 19.8, color: '#10B981' },
-            { channel: 'Email', audience: 850000, roas: 6.4, salesRate: 0.052, exposed: 850000, unexposed: 3150000, lift: 31.5, liftVsUnexposed: 35.2, color: '#F59E0B' },
-            { channel: 'Video', audience: 2200000, roas: 3.9, salesRate: 0.035, exposed: 2200000, unexposed: 1800000, lift: 16.8, liftVsUnexposed: 21.4, color: '#EF4444' },
-            { channel: 'OOH', audience: 1500000, roas: 2.8, salesRate: 0.019, exposed: 1500000, unexposed: 2500000, lift: 8.9, liftVsUnexposed: 12.5, color: '#6B7280' }
-        ];
+        // Chart.js configurations and data
+        const chartColors = {
+            primary: '#3b82f6',
+            secondary: '#10b981',
+            tertiary: '#f59e0b',
+            quaternary: '#ef4444',
+            quinary: '#8b5cf6'
+        };
 
-        const journeyData = [
-            { touchpoint: 1, conversionRate: 0.8, customers: 450 },
-            { touchpoint: 2, conversionRate: 1.5, customers: 280 },
-            { touchpoint: 3, conversionRate: 2.8, customers: 165 },
-            { touchpoint: 4, conversionRate: 4.5, customers: 98 },
-            { touchpoint: 5, conversionRate: 6.7, customers: 52 },
-            { touchpoint: 6, conversionRate: 8.9, customers: 28 }
-        ];
-
-        const attributionData = [
-            { model: 'Data Driven', revenue: 34.2 },
-            { model: 'Time Decay', revenue: 32.6 },
-            { model: 'Last Touch', revenue: 31.2 },
-            { model: 'Position Based', revenue: 30.9 },
-            { model: 'Linear', revenue: 29.8 },
-            { model: 'First Touch', revenue: 28.4 }
-        ];
-
-        // Initialize charts
-        function initCharts() {
-            // ROAS Chart
-            const roasCtx = document.getElementById('roasChart').getContext('2d');
-            new Chart(roasCtx, {
-                type: 'bar',
-                data: {
-                    labels: channelData.map(d => d.channel),
-                    datasets: [{
-                        label: 'ROAS',
-                        data: channelData.map(d => d.roas),
-                        backgroundColor: channelData.map(d => d.color),
-                        borderRadius: 8,
-                        borderSkipped: false,
-                    }]
+        // Customer Journey Funnel Chart
+        const journeyCtx = document.getElementById('journeyChart').getContext('2d');
+        new Chart(journeyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Awareness', 'Interest', 'Consideration', 'Purchase', 'Retention'],
+                datasets: [{
+                    label: 'Visitors',
+                    data: [10000, 8000, 6000, 3000, 2400],
+                    backgroundColor: chartColors.primary,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Conversion Rate %',
+                    data: [8, 15, 30, 80, 70],
+                    backgroundColor: chartColors.tertiary,
+                    type: 'line',
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'ROAS' }
-                        }
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
                     }
                 }
-            });
+            }
+        });
 
-            // Journey Chart
-            const journeyCtx = document.getElementById('journeyChart').getContext('2d');
-            new Chart(journeyCtx, {
-                type: 'line',
-                data: {
-                    labels: journeyData.map(d => `Touchpoint ${d.touchpoint}`),
-                    datasets: [
-                        {
-                            label: 'Conversion Rate (%)',
-                            data: journeyData.map(d => d.conversionRate),
-                            borderColor: '#3B82F6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Customers (K)',
-                            data: journeyData.map(d => d.customers),
-                            borderColor: '#8B5CF6',
-                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                            fill: true,
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        }
+        // Channel Performance Chart
+        const channelCtx = document.getElementById('channelChart').getContext('2d');
+        new Chart(channelCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Organic Search', 'Paid Search', 'Social Media', 'Email', 'Display'],
+                datasets: [{
+                    label: 'Conversions',
+                    data: [450, 380, 320, 180, 70],
+                    backgroundColor: [
+                        chartColors.primary,
+                        chartColors.secondary,
+                        chartColors.tertiary,
+                        chartColors.quaternary,
+                        chartColors.quinary
                     ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: 'Conversion Rate (%)' }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: { display: true, text: 'Customers (K)' },
-                            grid: { drawOnChartArea: false }
-                        }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 }
-            });
+            }
+        });
 
-            // Attribution Chart
-            const attributionCtx = document.getElementById('attributionChart').getContext('2d');
-            new Chart(attributionCtx, {
-                type: 'bar',
-                data: {
-                    labels: attributionData.map(d => d.model),
-                    datasets: [{
-                        label: 'Revenue ($M)',
-                        data: attributionData.map(d => d.revenue),
-                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                        borderRadius: 8,
-                        borderSkipped: false,
-                    }]
+        // Campaign Attribution Chart
+        const campaignCtx = document.getElementById('campaignChart').getContext('2d');
+        new Chart(campaignCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Summer Sale 2024', 'Black Friday Blitz', 'New Collection Launch', 'Holiday Specials'],
+                datasets: [{
+                    data: [32, 28, 21, 19],
+                    backgroundColor: [
+                        chartColors.primary,
+                        chartColors.secondary,
+                        chartColors.tertiary,
+                        chartColors.quaternary
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // ROAS Trends Chart
+        const roasCtx = document.getElementById('roasChart').getContext('2d');
+        new Chart(roasCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{
+                    label: 'Loyal Shoppers',
+                    data: [8.2, 8.8, 9.1, 9.5, 10.2],
+                    borderColor: chartColors.primary,
+                    backgroundColor: chartColors.primary + '10',
+                    tension: 0.4
+                }, {
+                    label: 'First Time Buyers',
+                    data: [5.1, 5.8, 6.2, 6.7, 7.1],
+                    borderColor: chartColors.secondary,
+                    backgroundColor: chartColors.secondary + '10',
+                    tension: 0.4
+                }, {
+                    label: 'High Value Customers',
+                    data: [12.5, 13.2, 14.1, 14.8, 15.6],
+                    borderColor: chartColors.tertiary,
+                    backgroundColor: chartColors.tertiary + '10',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    indexAxis: 'y',
-                    plugins: {
-                        legend: { display: false }
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Customer Cohort Chart
+        const cohortCtx = document.getElementById('cohortChart').getContext('2d');
+        new Chart(cohortCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{
+                    label: 'New Customers',
+                    data: [1200, 1350, 1100, 1450, 1600],
+                    backgroundColor: chartColors.primary,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Returning Customers',
+                    data: [800, 950, 850, 1100, 1250],
+                    backgroundColor: chartColors.secondary,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Retention Rate %',
+                    data: [67, 70, 77, 76, 78],
+                    backgroundColor: chartColors.tertiary,
+                    type: 'line',
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                     },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Revenue ($M)' }
-                        }
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
                     }
                 }
-            });
-        }
-
-        // Populate channel table
-        function populateChannelTable() {
-            const tbody = document.getElementById('channelTableBody');
-            tbody.innerHTML = '';
-
-            channelData.forEach(channel => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <span class="channel-indicator" style="background-color: ${channel.color}"></span>
-                        ${channel.channel}
-                    </td>
-                    <td>${(channel.audience/1000000).toFixed(1)}M</td>
-                    <td style="color: #059669; font-weight: 600;">${channel.roas}x</td>
-                    <td>${(channel.salesRate * 100).toFixed(1)}%</td>
-                    <td>${(channel.exposed/1000000).toFixed(1)}M</td>
-                    <td>${(channel.unexposed/1000000).toFixed(1)}M</td>
-                    <td style="color: #3B82F6; font-weight: 600;">+${channel.lift}%</td>
-                    <td style="color: #8B5CF6; font-weight: 600;">+${channel.liftVsUnexposed}%</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        // Control functions
-        function selectPeriod(element, period) {
-            document.querySelectorAll('.control-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            element.classList.add('active');
-            console.log('Selected period:', period);
-        }
-
-        function exportReport() {
-            alert('Export functionality would be implemented here');
-        }
-
-        // Initialize dashboard
-        window.addEventListener('load', function() {
-            initCharts();
-            populateChannelTable();
+            }
         });
     </script>
 </body>

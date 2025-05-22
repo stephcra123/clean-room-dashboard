@@ -1,203 +1,462 @@
+// Dashboard Analytics JavaScript
+// Requires Chart.js to be loaded: https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js
 
-channelData.forEach(channel => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>
-            <span class="channel-indicator" style="background-color: ${channel.color}"></span>
-            ${channel.channel}
-        </td>
-        <td>${(channel.audience/1000000).toFixed(1)}M</td>
-        <td style="color: #059669; font-weight: 600;">${channel.roas}x</td>
-        <td>${(channel.salesRate * 100).toFixed(1)}%</td>
-        <td>${(channel.exposed/1000000).toFixed(1)}M</td>
-        <td>${(channel.unexposed/1000000).toFixed(1)}M</td>
-        <td style="color: #3B82F6; font-weight: 600;">+${channel.lift}%</td>
-        <td style="color: #8B5CF6; font-weight: 600;">+${channel.liftVsUnexposed}%</td>
-    `;
-    tbody.appendChild(row);
-});
+// Global chart configuration
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif';
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#6b7280';
+
+// Color palette
+const chartColors = {
+    primary: '#3b82f6',
+    secondary: '#10b981',
+    tertiary: '#f59e0b',
+    quaternary: '#ef4444',
+    quinary: '#8b5cf6',
+    gradients: {
+        primary: 'rgba(59, 130, 246, 0.1)',
+        secondary: 'rgba(16, 185, 129, 0.1)',
+        tertiary: 'rgba(245, 158, 11, 0.1)'
+    }
+};
+
+// Data for all charts
+const dashboardData = {
+    journey: {
+        labels: ['Awareness', 'Interest', 'Consideration', 'Purchase', 'Retention'],
+        visitors: [10000, 8000, 6000, 3000, 2400],
+        conversionRates: [8, 15, 30, 80, 70]
+    },
+    channels: {
+        labels: ['Organic Search', 'Paid Search', 'Social Media', 'Email', 'Display'],
+        conversions: [450, 380, 320, 180, 70],
+        colors: [chartColors.primary, chartColors.secondary, chartColors.tertiary, chartColors.quaternary, chartColors.quinary]
+    },
+    campaigns: {
+        labels: ['Summer Sale 2024', 'Black Friday Blitz', 'New Collection Launch', 'Holiday Specials'],
+        attribution: [32, 28, 21, 19],
+        colors: [chartColors.primary, chartColors.secondary, chartColors.tertiary, chartColors.quaternary]
+    },
+    roas: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+        loyalShoppers: [8.2, 8.8, 9.1, 9.5, 10.2],
+        firstTimeBuyers: [5.1, 5.8, 6.2, 6.7, 7.1],
+        highValueCustomers: [12.5, 13.2, 14.1, 14.8, 15.6]
+    },
+    cohort: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+        newCustomers: [1200, 1350, 1100, 1450, 1600],
+        returningCustomers: [800, 950, 850, 1100, 1250],
+        retentionRates: [67, 70, 77, 76, 78]
+    }
+};
+
+// Chart initialization functions
+function initializeJourneyChart() {
+    const ctx = document.getElementById('journeyChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dashboardData.journey.labels,
+            datasets: [{
+                label: 'Visitors',
+                data: dashboardData.journey.visitors,
+                backgroundColor: chartColors.primary,
+                borderColor: chartColors.primary,
+                borderWidth: 1,
+                yAxisID: 'y'
+            }, {
+                label: 'Conversion Rate %',
+                data: dashboardData.journey.conversionRates,
+                backgroundColor: chartColors.tertiary,
+                borderColor: chartColors.tertiary,
+                borderWidth: 2,
+                type: 'line',
+                yAxisID: 'y1',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff'
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Visitors'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Conversion Rate %'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                }
+            }
+        }
+    });
 }
 
-// Control functions
-function selectPeriod(element, period) {
-// Remove active class from all control items
-document.querySelectorAll('.control-item').forEach(item => {
-    item.classList.remove('active');
-});
+function initializeChannelChart() {
+    const ctx = document.getElementById('channelChart');
+    if (!ctx) return;
 
-// Add active class to selected item
-element.classList.add('active');
-
-// Update data based on selected period
-updateDashboardData(period);
-
-console.log('Selected period:', period);
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dashboardData.channels.labels,
+            datasets: [{
+                label: 'Conversions',
+                data: dashboardData.channels.conversions,
+                backgroundColor: dashboardData.channels.colors,
+                borderColor: dashboardData.channels.colors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Conversions'
+                    }
+                }
+            }
+        }
+    });
 }
 
-function updateDashboardData(period) {
-// This function would typically fetch new data based on the selected period
-// For demo purposes, we'll just log the action
-console.log('Updating dashboard data for period:', period);
+function initializeCampaignChart() {
+    const ctx = document.getElementById('campaignChart');
+    if (!ctx) return;
 
-// You could add logic here to:
-// 1. Fetch new data from API
-// 2. Update chart data
-// 3. Refresh metric cards
-// 4. Update table data
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: dashboardData.campaigns.labels,
+            datasets: [{
+                data: dashboardData.campaigns.attribution,
+                backgroundColor: dashboardData.campaigns.colors,
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
-function exportReport() {
-// Create a simple CSV export of channel data
-const csvData = [
-    ['Channel', 'Audience', 'ROAS', 'Sales Rate', 'Exposed', 'Unexposed', 'Lift vs Control', 'Lift vs Unexposed'],
-    ...channelData.map(channel => [
-        channel.channel,
-        channel.audience,
-        channel.roas,
-        (channel.salesRate * 100).toFixed(1) + '%',
-        channel.exposed,
-        channel.unexposed,
-        '+' + channel.lift + '%',
-        '+' + channel.liftVsUnexposed + '%'
-    ])
-];
+function initializeRoasChart() {
+    const ctx = document.getElementById('roasChart');
+    if (!ctx) return;
 
-const csvContent = csvData.map(row => row.join(',')).join('\n');
-const blob = new Blob([csvContent], { type: 'text/csv' });
-const url = window.URL.createObjectURL(blob);
-
-const a = document.createElement('a');
-a.href = url;
-a.download = 'attribution-report.csv';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-window.URL.revokeObjectURL(url);
-
-console.log('Report exported successfully');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dashboardData.roas.labels,
+            datasets: [{
+                label: 'Loyal Shoppers',
+                data: dashboardData.roas.loyalShoppers,
+                borderColor: chartColors.primary,
+                backgroundColor: chartColors.gradients.primary,
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }, {
+                label: 'First Time Buyers',
+                data: dashboardData.roas.firstTimeBuyers,
+                borderColor: chartColors.secondary,
+                backgroundColor: chartColors.gradients.secondary,
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }, {
+                label: 'High Value Customers',
+                data: dashboardData.roas.highValueCustomers,
+                borderColor: chartColors.tertiary,
+                backgroundColor: chartColors.gradients.tertiary,
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + 'x ROAS';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    }
+                },
+                y: {
+                    beginAtZero: false,
+                    title: {
+                        display: true,
+                        text: 'ROAS (Return on Ad Spend)'
+                    }
+                }
+            }
+        }
+    });
 }
 
-// Metric calculation functions
-function calculateTotalAudience() {
-return channelData.reduce((total, channel) => total + channel.audience, 0);
+function initializeCohortChart() {
+    const ctx = document.getElementById('cohortChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: dashboardData.cohort.labels,
+            datasets: [{
+                label: 'New Customers',
+                data: dashboardData.cohort.newCustomers,
+                backgroundColor: chartColors.primary,
+                borderColor: chartColors.primary,
+                borderWidth: 1,
+                yAxisID: 'y'
+            }, {
+                label: 'Returning Customers',
+                data: dashboardData.cohort.returningCustomers,
+                backgroundColor: chartColors.secondary,
+                borderColor: chartColors.secondary,
+                borderWidth: 1,
+                yAxisID: 'y'
+            }, {
+                label: 'Retention Rate %',
+                data: dashboardData.cohort.retentionRates,
+                backgroundColor: chartColors.tertiary,
+                borderColor: chartColors.tertiary,
+                borderWidth: 2,
+                type: 'line',
+                yAxisID: 'y1',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff'
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Number of Customers'
+                    },
+                    beginAtZero: true
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Retention Rate %'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    beginAtZero: false
+                }
+            }
+        }
+    });
 }
 
-function calculateBlendedROAS() {
-const totalRevenue = channelData.reduce((total, channel) => total + (channel.audience * channel.roas), 0);
-const totalSpend = channelData.reduce((total, channel) => total + channel.audience, 0);
-return (totalRevenue / totalSpend).toFixed(1);
-}
-
-function calculateAverageSalesRate() {
-const totalSales = channelData.reduce((total, channel) => total + (channel.audience * channel.salesRate), 0);
-const totalAudience = calculateTotalAudience();
-return ((totalSales / totalAudience) * 100).toFixed(1);
-}
-
-function calculateAttributionLift() {
-const averageLift = channelData.reduce((total, channel) => total + channel.lift, 0) / channelData.length;
-return averageLift.toFixed(1);
-}
-
-// Animation functions
-function animateMetricCards() {
-const cards = document.querySelectorAll('.metric-card');
-cards.forEach((card, index) => {
-    setTimeout(() => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.5s ease';
-        
+// Animation functions for audience bars
+function animateAudienceBars() {
+    const bars = document.querySelectorAll('.conversion-bar-fill');
+    
+    bars.forEach((bar, index) => {
         setTimeout(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, 100);
-    }, index * 150);
-});
+            bar.style.width = bar.style.width || '0%';
+        }, index * 200);
+    });
 }
 
 // Utility functions
 function formatNumber(num) {
-if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M';
-} else if (num >= 1000) {
-    return (num / 1000).toFixed(0) + 'K';
-}
-return num.toString();
-}
-
-function formatCurrency(num) {
-return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-}).format(num);
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
 }
 
-function formatPercentage(num) {
-return (num * 100).toFixed(1) + '%';
+function updateMetricCards() {
+    // This function can be used to update metric cards with real-time data
+    const cards = document.querySelectorAll('.stat-card-value');
+    
+    // Example of how to update values (you would get these from your API)
+    const metrics = {
+        conversions: 1400,
+        conversionRate: 4.2,
+        avgRoas: 8.2,
+        customerLtv: 485,
+        activeCustomers: 12450
+    };
+    
+    // Update each card if needed
+    // This is just an example - you'd implement based on your data source
 }
 
-// Main initialization function
+// Resize handler for responsive charts
+function handleResize() {
+    // Chart.js automatically handles resize, but you can add custom logic here
+    console.log('Dashboard resized');
+}
+
+// Initialize dashboard
 function initializeDashboard() {
-try {
     // Initialize all charts
-    initROASChart();
-    initJourneyChart();
-    initAttributionChart();
+    initializeJourneyChart();
+    initializeChannelChart();
+    initializeCampaignChart();
+    initializeRoasChart();
+    initializeCohortChart();
     
-    // Populate data tables
-    populateChannelTable();
+    // Animate audience bars
+    setTimeout(animateAudienceBars, 500);
     
-    // Animate metric cards
-    setTimeout(animateMetricCards, 500);
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
     
     console.log('Dashboard initialized successfully');
-} catch (error) {
-    console.error('Error initializing dashboard:', error);
-}
 }
 
-// Event listeners
+// Wait for DOM to be loaded, then initialize
 document.addEventListener('DOMContentLoaded', function() {
-initializeDashboard();
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded. Please include Chart.js before this script.');
+        return;
+    }
+    
+    initializeDashboard();
 });
 
-// Window load event for chart initialization
-window.addEventListener('load', function() {
-// Ensure charts are properly sized after all resources are loaded
-setTimeout(() => {
-    Chart.helpers.each(Chart.instances, function(instance) {
-        instance.resize();
-    });
-}, 100);
-});
-
-// Resize event handler
-window.addEventListener('resize', function() {
-// Debounce resize events
-clearTimeout(window.resizeTimeout);
-window.resizeTimeout = setTimeout(() => {
-    Chart.helpers.each(Chart.instances, function(instance) {
-        instance.resize();
-    });
-}, 250);
-});
-
-// Export functions for external use
-window.DashboardAPI = {
-exportReport,
-selectPeriod,
-calculateTotalAudience,
-calculateBlendedROAS,
-calculateAverageSalesRate,
-calculateAttributionLift,
-formatNumber,
-formatCurrency,
-formatPercentage,
-channelData,
-journeyData,
-attributionData,
-holdoutData
-};
+// Export functions for external use (if needed)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        initializeDashboard,
+        updateMetricCards,
+        formatNumber,
+        chartColors,
+        dashboardData
+    };
+}
